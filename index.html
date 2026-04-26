@@ -4,82 +4,31 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hardware Admin Panel</title>
+    <title>Macro Hardware Admin</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7f6;
-            margin: 0;
-            padding: 0;
-        }
-        .navbar {
-            background-color: #1a4db1;
-            color: white;
-            padding: 15px 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .admin-btn {
-            background-color: #3b82f6;
-            border: none;
-            color: white;
-            padding: 8px 16px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        .container {
-            display: flex;
-            justify-content: center;
-            margin-top: 50px;
-        }
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 8px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 90%;
-            max-width: 400px;
-        }
-        h2 {
-            margin-top: 0;
-            color: #333;
-            font-size: 22px;
-        }
-        input {
-            width: 100%;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-            box-sizing: border-box;
-            font-size: 16px;
-        }
-        /* گیلری والے بٹن کے لیے سٹائل */
-        input[type="file"] {
-            padding: 10px;
+        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .navbar { background-color: #1a4db1; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .admin-btn { background-color: #3b82f6; border: none; color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
+        .container { display: flex; justify-content: center; margin-top: 50px; }
+        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
+        h2 { margin-top: 0; color: #333; font-size: 22px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        
+        /* گیلری کے لیے خاص بٹن */
+        .file-input-label {
+            display: block;
             background: #f9f9f9;
-            cursor: pointer;
-        }
-        .save-btn {
-            width: 100%;
-            background-color: #28a745;
-            color: white;
-            border: none;
             padding: 12px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 5px;
+            border: 1px dashed #bbb;
+            text-align: center;
             cursor: pointer;
-            margin-top: 10px;
-        }
-        #preview {
-            width: 100%;
-            max-height: 200px;
-            margin-top: 10px;
+            color: #666;
+            margin: 10px 0;
             border-radius: 5px;
-            display: none; /* شروع میں تصویر چھپی ہوگی */
         }
+        #preview { width: 100%; max-height: 150px; object-fit: contain; margin-top: 10px; display: none; border-radius: 5px; }
+        
+        .save-btn { width: 100%; background-color: #28a745; color: white; border: none; padding: 12px; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -92,40 +41,27 @@
     <div class="container">
         <div class="card">
             <h2>Add New Product</h2>
-            <input type="text" id="pName" placeholder="Product Name">
-            <input type="text" id="pPrice" placeholder="Price (Rs.)">
+            <input type="text" placeholder="Product Name">
+            <input type="text" placeholder="Price (Rs.)">
             
-            <label style="font-size: 14px; color: #666;">Select Product Photo:</label>
-            <input type="file" id="pPhoto" accept="image/*" onchange="previewImage(event)">
+            <label class="file-input-label" for="pPhoto">
+                📷 Select Photo from Gallery
+            </label>
+            <input type="file" id="pPhoto" accept="image/*" style="display: none;" onchange="showPreview(event)">
             
-            <img id="preview" src="#" alt="Image Preview">
+            <img id="preview" src="">
 
-            <button class="save-btn" onclick="saveData()">Save Product</button>
+            <button class="save-btn">Save Product</button>
         </div>
     </div>
 
     <script>
-        // گیلری سے تصویر منتخب کرنے پر اسے سکرین پر دکھانے کا فنکشن
-        function previewImage(event) {
-            var reader = new FileReader();
-            reader.onload = function(){
-                var output = document.getElementById('preview');
-                output.src = reader.result;
-                output.style.display = 'block';
-            };
-            reader.readAsDataURL(event.target.files[0]);
-        }
-
-        function saveData() {
-            let name = document.getElementById('pName').value;
-            let price = document.getElementById('pPrice').value;
-            let photo = document.getElementById('pPhoto').files[0];
-
-            if(name && price && photo) {
-                alert("پروڈکٹ کا نام: " + name + "\nقیمت: " + price + "\nتصویر سلیکٹ کر لی گئی ہے!");
-                // یہاں آپ کا ڈیٹا محفوظ کرنے کا لاجک آئے گا
-            } else {
-                alert("براہ کرم تمام معلومات فراہم کریں اور تصویر سلیکٹ کریں۔");
+        function showPreview(event) {
+            if(event.target.files.length > 0){
+                var src = URL.createObjectURL(event.target.files[0]);
+                var preview = document.getElementById("preview");
+                preview.src = src;
+                preview.style.display = "block";
             }
         }
     </script>
