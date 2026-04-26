@@ -1,84 +1,115 @@
+
 <!DOCTYPE html>
-<html lang="en" dir="ltr">
+<html lang="ur">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Hardware</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Hardware Admin Panel</title>
     <style>
-        body { font-family: 'Inter', sans-serif; }
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 0;
+        }
+        /* نیلے رنگ کا اوپر والا حصہ */
+        .navbar {
+            background-color: #1a4db1;
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .admin-btn {
+            background-color: #3b82f6;
+            border: none;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        /* فارم کا ڈیزائن */
+        .container {
+            display: flex;
+            justify-content: center;
+            margin-top: 50px;
+        }
+        .card {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            width: 90%;
+            max-width: 400px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            font-size: 22px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        input::placeholder {
+            color: #ccc;
+        }
+        /* سبز بٹن */
+        .save-btn {
+            width: 100%;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .save-btn:hover {
+            background-color: #218838;
+        }
     </style>
 </head>
-<body class="bg-gray-100 pb-20">
-    <nav class="bg-blue-800 text-white p-4 shadow-lg flex justify-between items-center">
-        <h1 class="text-xl font-bold">Macro Hardware</h1>
-        <button onclick="toggleAdmin()" class="bg-blue-600 px-4 py-2 rounded shadow">Admin Panel</button>
-    </nav>
+<body>
 
-    <div class="container mx-auto p-4">
-        <div id="adminPanel" class="hidden bg-white p-6 shadow-md rounded-lg mb-6 border-t-4 border-blue-800">
-            <h2 class="text-xl font-bold mb-4 text-gray-800">Add New Product</h2>
-            <div class="space-y-3">
-                <input type="text" id="pName" placeholder="Product Name" class="w-full border p-2 rounded">
-                <input type="number" id="pPrice" placeholder="Price (Rs.)" class="w-full border p-2 rounded">
-                <input type="text" id="pImg" placeholder="Image Link (Paste URL here)" class="w-full border p-2 rounded">
-                <button onclick="saveProduct()" class="w-full bg-green-600 text-white p-2 rounded font-bold hover:bg-green-700">Save Product</button>
-            </div>
+    <div class="navbar">
+        <div style="font-weight: bold; font-size: 20px;">Macro Hardware</div>
+        <button class="admin-btn">Admin Panel</button>
+    </div>
+
+    <div class="container">
+        <div class="card">
+            <h2>Add New Product</h2>
+            <input type="text" id="pName" placeholder="Product Name">
+            <input type="text" id="pPrice" placeholder="Price (Rs.)">
+            <input type="text" id="pImage" placeholder="Image Link (Paste URL here)">
+            
+            <button class="save-btn" onclick="saveData()">Save Product</button>
         </div>
-
-        <div id="product-list" class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            </div>
     </div>
 
     <script>
-        // Data saving logic
-        let products = JSON.parse(localStorage.getItem('macroStoreData')) || [];
+        function saveData() {
+            let name = document.getElementById('pName').value;
+            let price = document.getElementById('pPrice').value;
+            let img = document.getElementById('pImage').value;
 
-        function toggleAdmin() {
-            const panel = document.getElementById('adminPanel');
-            panel.classList.toggle('hidden');
-        }
-
-        function saveProduct() {
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const img = document.getElementById('pImg').value || 'https://via.placeholder.com/150';
-
-            if(name && price) {
-                products.push({ name, price, img });
-                localStorage.setItem('macroStoreData', JSON.stringify(products));
-                renderProducts();
-                
-                document.getElementById('pName').value = '';
-                document.getElementById('pPrice').value = '';
-                document.getElementById('pImg').value = '';
-                toggleAdmin();
+            if(name && price && img) {
+                alert("پروڈکٹ محفوظ کر لی گئی ہے!\nنام: " + name);
+                // یہاں آپ ڈیٹا بیس کا کوڈ لگا سکتے ہیں
             } else {
-                alert("Please enter Name and Price");
+                alert("براہ کرم تمام خانے پُر کریں۔");
             }
         }
-
-        function renderProducts() {
-            const list = document.getElementById('product-list');
-            list.innerHTML = products.map((p, index) => `
-                <div class="bg-white p-3 shadow rounded-lg border hover:shadow-lg transition">
-                    <img src="${p.img}" class="w-full h-32 object-cover rounded mb-2" onerror="this.src='https://via.placeholder.com/150'">
-                    <h3 class="font-bold text-gray-800">${p.name}</h3>
-                    <p class="text-blue-700 font-bold">Rs. ${p.price}</p>
-                    <button onclick="deleteProduct(${index})" class="text-red-500 text-xs mt-2 underline">Remove</button>
-                </div>
-            `).join('');
-        }
-
-        function deleteProduct(index) {
-            if(confirm("Do you want to remove this item?")) {
-                products.splice(index, 1);
-                localStorage.setItem('macroStoreData', JSON.stringify(products));
-                renderProducts();
-            }
-        }
-
-        renderProducts();
     </script>
+
 </body>
 </html>
