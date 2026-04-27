@@ -1,79 +1,91 @@
-
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="ur" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Hardware Admin</title>
+    <title>میکرو ہارڈویئر ایڈمن پینل</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+
     <style>
-        body { font-family: sans-serif; padding: 20px; text-align: center; }
-        .form-container { max-width: 400px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 10px; }
-        input { width: 90%; margin: 10px 0; padding: 10px; }
-        button { background-color: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f4f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
+        h2 { color: #333; margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { width: 100%; padding: 12px; background-color: #28a745; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: 0.3s; }
+        button:hover { background-color: #218838; }
     </style>
 </head>
 <body>
-    <h1>میکرو ہارڈویئر اسٹاک مینجمنٹ</h1>
-    <div class="form-container">
-        <input type="text" id="itemName" placeholder="سامان کا نام">
-        <input type="number" id="itemPrice" placeholder="قیمت">
-        <input type="file" id="itemImage">
-        <button onclick="uploadData()">اسٹاک میں شامل کریں</button>
-    </div>
 
-    <script>
-        // آپ کا اصلی فائر بیس کوڈ
-        const firebaseConfig = {
-            apiKey: "AIzaSyCkVQ5Rvkbt1SRyUlyIJN1...", // اپنی تصویر سے دیکھ کر مکمل کریں
-            authDomain: "macro-hardware.firebaseapp.com",
-            projectId: "macro-hardware",
-            storageBucket: "macro-hardware.appspot.com",
-            messagingSenderId: "696737618825",
-            appId: "1:696737618825:web:4bbb63f3...", // اپنی تصویر سے دیکھ کر مکمل کریں
-            measurementId: "G-GDQ93GZCJX"
-        };
+<div class="container">
+    <h2>اسٹاک مینجمنٹ</h2>
+    <input type="text" id="pName" placeholder="سامان کا نام">
+    <input type="number" id="pPrice" placeholder="قیمت">
+    <input type="file" id="pImage">
+    <button onclick="uploadItem()">اسٹاک میں شامل کریں</button>
+    <p id="status" style="margin-top: 15px; font-size: 14px;"></p>
+</div>
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+<script>
+    // یہاں اپنا اصلی کوڈ تصویر سے دیکھ کر مکمل کریں
+    const firebaseConfig = {
+        apiKey: "AIzaSyCkVQ5Rvkbt1SRyUlyIJN1...", 
+        authDomain: "macro-hardware.firebaseapp.com",
+        projectId: "macro-hardware",
+        storageBucket: "macro-hardware.appspot.com",
+        messagingSenderId: "696737618825",
+        appId: "1:696737618825:web:4bbb63f3...", 
+        measurementId: "G-GDQ93GZCJX"
+    };
 
-        async function uploadData() {
-            const name = document.getElementById('itemName').value;
-            const price = document.getElementById('itemPrice').value;
-            const file = document.getElementById('itemImage').files[0];
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
 
-            if(!name || !price || !file) {
-                alert("براہ کرم تمام معلومات درج کریں");
-                return;
-            }
+    async function uploadItem() {
+        const name = document.getElementById('pName').value;
+        const price = document.getElementById('pPrice').value;
+        const imageFile = document.getElementById('pImage').files[0];
+        const status = document.getElementById('status');
 
-            try {
-                // تصویر اپ لوڈ کرنا
-                const storageRef = storage.ref('products/' + file.name);
-                await storageRef.put(file);
-                const imageUrl = await storageRef.getDownloadURL();
-
-                // ڈیٹا بیس میں سیو کرنا
-                await db.collection('products').add({
-                    name: name,
-                    price: price,
-                    image: imageUrl,
-                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                });
-
-                alert("سامان کامیابی سے شامل کر دیا گیا ہے!");
-                location.reload();
-            } catch (error) {
-                console.error(error);
-                alert("اپ لوڈ کرنے میں مسئلہ ہوا: " + error.message);
-            }
+        if (!name || !price || !imageFile) {
+            alert("براہ کرم تمام معلومات پُر کریں!");
+            return;
         }
-    </script>
+
+        status.innerText = "اپ لوڈ ہو رہا ہے، براہ کرم انتظار کریں...";
+        
+        try {
+            // تصویر اپ لوڈ کرنا
+            const imgRef = storage.ref('products/' + imageFile.name);
+            await imgRef.put(imageFile);
+            const imgUrl = await imgRef.getDownloadURL();
+
+            // ڈیٹا بیس میں سیو کرنا
+            await db.collection('hardware_items').add({
+                name: name,
+                price: price,
+                image: imgUrl,
+                date: new Date()
+            });
+
+            status.style.color = "green";
+            status.innerText = "سامان کامیابی سے شامل ہو گیا!";
+            document.getElementById('pName').value = "";
+            document.getElementById('pPrice').value = "";
+        } catch (error) {
+            status.style.color = "red";
+            status.innerText = "خرابی: " + error.message;
+        }
+    }
+</script>
+
 </body>
 </html>
+
 
 
 
