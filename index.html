@@ -4,29 +4,61 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Macro Hardware - Admin Panel</title>
-    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: white; padding: 40px; border-radius: 15px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); width: 100%; max-width: 400px; text-align: center; }
-        h2 { color: #1c1e21; margin-bottom: 25px; font-weight: 600; }
-        input { width: 100%; padding: 12px; margin: 12px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; }
-        label { display: block; text-align: left; font-size: 13px; color: #606770; margin-bottom: 5px; }
-        button { width: 100%; padding: 14px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 15px; }
-        button:hover { background-color: #0056b3; }
-        #status { margin-top: 20px; font-size: 14px; font-weight: 500; }
+        body { font-family: sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
+    <div class="container">
+        <h2>Stock Management</h2>
+        <input type="text" id="pName" placeholder="Product Name">
+        <input type="number" id="pPrice" placeholder="Price">
+        <input type="file" id="pImage">
+        <button onclick="uploadItem()">Add to Stock</button>
+        <p id="status"></p>
+    </div>
 
-<div class="container">
-    <h2>Stock Management</h2>
-    
-    <label>Product Name</label>
-    <input type="text" id="pName" placeholder="e.g. Aluminium Window">
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCkVQ5Rvkbt1SRyUlyIJN1SRyUlyIJN1",
+            authDomain: "macro-hardware.firebaseapp.com",
+            projectId: "macro-hardware",
+            storageBucket: "macro-hardware.appspot.com",
+            messagingSenderId: "696737618825",
+            appId: "1:696737618825:web:4bbb63f3c4bbb63f3c",
+            measurementId: "G-GDQ93GZCJX"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        async function uploadItem() {
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            const imageFile = document.getElementById('pImage').files[0];
+            const status = document.getElementById('status');
+            if (!name || !price || !imageFile) { alert("Fill all fields!"); return; }
+            status.innerText = "Uploading...";
+            try {
+                const imgRef = storage.ref('products/' + imageFile.name);
+                await imgRef.put(imageFile);
+                const imgUrl = await imgRef.getDownloadURL();
+                await db.collection('hardware_items').add({ name, price, image: imgUrl, date: new Date() });
+                status.innerText = "Success! Added to stock.";
+                document.getElementById('pName').value = ""; document.getElementById('pPrice').value = "";
+            } catch (e) { status.innerText = "Error: " + e.message; }
+        }
+    </script>
+</body>
+</html>
+
 
 
 
