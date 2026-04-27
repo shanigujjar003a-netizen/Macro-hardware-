@@ -3,15 +3,21 @@
 <html lang="ur">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Macro Hardware Admin</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; }
+        .form-container { max-width: 400px; margin: auto; border: 1px solid #ccc; padding: 20px; border-radius: 10px; }
+        input { width: 90%; margin: 10px 0; padding: 10px; }
+        button { background-color: #007bff; color: white; padding: 10px 20px; border: none; cursor: pointer; border-radius: 5px; }
+    </style>
 </head>
 <body>
     <h1>میکرو ہارڈویئر اسٹاک مینجمنٹ</h1>
-    
-    <div id="admin-panel">
+    <div class="form-container">
         <input type="text" id="itemName" placeholder="سامان کا نام">
         <input type="number" id="itemPrice" placeholder="قیمت">
         <input type="file" id="itemImage">
@@ -19,24 +25,51 @@
     </div>
 
     <script>
+        // آپ کا اصلی فائر بیس کوڈ
         const firebaseConfig = {
-            apiKey: "AIzaSyCkVQ5Rvkbt1SRyUlyIJN1...", // اپنی مکمل تصویر 39910 سے دیکھ کر لکھیں
+            apiKey: "AIzaSyCkVQ5Rvkbt1SRyUlyIJN1...", // اپنی تصویر سے دیکھ کر مکمل کریں
             authDomain: "macro-hardware.firebaseapp.com",
             projectId: "macro-hardware",
             storageBucket: "macro-hardware.appspot.com",
             messagingSenderId: "696737618825",
-            appId: "1:696737618825:web:4bbb63f3...", // اپنی مکمل تصویر 39910 سے دیکھ کر لکھیں
+            appId: "1:696737618825:web:4bbb63f3...", // اپنی تصویر سے دیکھ کر مکمل کریں
             measurementId: "G-GDQ93GZCJX"
         };
 
-        // فائر بیس شروع کریں
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const storage = firebase.storage();
 
-        function uploadData() {
-            // یہاں ڈیٹا اپ لوڈ کرنے کا فنکشن آئے گا
-            alert("سیٹ اپ مکمل ہے! اب آپ اپ لوڈ کر سکتے ہیں۔");
+        async function uploadData() {
+            const name = document.getElementById('itemName').value;
+            const price = document.getElementById('itemPrice').value;
+            const file = document.getElementById('itemImage').files[0];
+
+            if(!name || !price || !file) {
+                alert("براہ کرم تمام معلومات درج کریں");
+                return;
+            }
+
+            try {
+                // تصویر اپ لوڈ کرنا
+                const storageRef = storage.ref('products/' + file.name);
+                await storageRef.put(file);
+                const imageUrl = await storageRef.getDownloadURL();
+
+                // ڈیٹا بیس میں سیو کرنا
+                await db.collection('products').add({
+                    name: name,
+                    price: price,
+                    image: imageUrl,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert("سامان کامیابی سے شامل کر دیا گیا ہے!");
+                location.reload();
+            } catch (error) {
+                console.error(error);
+                alert("اپ لوڈ کرنے میں مسئلہ ہوا: " + error.message);
+            }
         }
     </script>
 </body>
