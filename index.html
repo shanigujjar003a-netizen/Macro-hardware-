@@ -1,104 +1,94 @@
-
 <!DOCTYPE html>
-<html lang="ur">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Hardware Admin</title>
+    <title>Macro Hardware - Catalog</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f7f6; margin: 0; }
-        .navbar { background-color: #1a4db1; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .admin-btn { background-color: #3b82f6; border: none; color: white; padding: 8px 16px; border-radius: 4px; cursor: pointer; }
-        .container { display: flex; justify-content: center; margin-top: 50px; }
-        .card { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 90%; max-width: 400px; }
-        h2 { margin-top: 0; color: #333; font-size: 22px; }
-        input { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        body { font-family: 'Arial', sans-serif; background-color: #f4f4f9; margin: 0; padding: 10px; text-align: center; }
+        header { background: #1a1a1a; color: #ffcc00; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-bottom: 4px solid #cc0000; }
         
-        /* گیلری کے لیے خاص بٹن */
-        .file-input-label {
-            display: block;
-            background: #f9f9f9;
-            padding: 12px;
-            border: 1px dashed #bbb;
-            text-align: center;
-            cursor: pointer;
-            color: #666;
-            margin: 10px 0;
-            border-radius: 5px;
-        }
-        #preview { width: 100%; max-height: 150px; object-fit: contain; margin-top: 10px; display: none; border-radius: 5px; }
+        /* Search Box */
+        .search-container { position: sticky; top: 0; background: #f4f4f9; padding: 10px 0; z-index: 100; }
+        #searchInput { width: 90%; padding: 12px; border-radius: 25px; border: 2px solid #1a1a1a; font-size: 16px; outline: none; }
+
+        /* Product Cards */
+        .product-list { display: flex; flex-direction: column; gap: 15px; align-items: center; margin-top: 10px; }
+        .card { background: white; width: 95%; max-width: 400px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #ddd; }
         
-        .save-btn { width: 100%; background-color: #28a745; color: white; border: none; padding: 12px; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; }
+        /* Product Image */
+        .card img { width: 100%; height: 200px; object-fit: cover; background-color: #eee; }
+        
+        .info { padding: 15px; text-align: left; }
+        .info h3 { margin: 0; font-size: 18px; color: #333; }
+        .price { color: #d32f2f; font-size: 22px; font-weight: bold; display: block; margin-top: 8px; }
+
+        /* QR Code Footer */
+        .qr-section { margin-top: 40px; padding: 20px; background: white; border: 2px dashed #1a1a1a; border-radius: 15px; }
+        .qr-image { width: 180px; height: 180px; }
     </style>
 </head>
-<script>
-    // 1. پروڈکٹ کو براؤزر کی میموری میں محفوظ کرنے کا فنکشن
-    function saveProduct() {
-        const name = document.getElementById('productName').value; // جہاں نام لکھتے ہیں اس کی ID
-        const price = document.getElementById('productPrice').value; // جہاں قیمت لکھتے ہیں اس کی ID
+<body>
 
-        if (name && price) {
-            let products = JSON.parse(localStorage.getItem('myProducts')) || [];
-            products.push({ name: name, price: price });
-            
-            localStorage.setItem('myProducts', JSON.stringify(products));
-            alert("پروڈکٹ محفوظ ہوگئی ہے!");
-            displayProducts(); // لسٹ اپڈیٹ کرنے کے لیے
-        } else {
-            alert("براہ کرم نام اور قیمت دونوں لکھیں");
-        }
-    }
+<header>
+    <h1>MACRO HARDWARE</h1>
+    <p>Premium Building Materials & Tools</p>
+</header>
 
-    // 2. محفوظ شدہ پروڈکٹس کو سکرین پر دکھانے کا فنکشن
-    function displayProducts() {
-        const productList = document.getElementById('displayArea'); // جہاں لسٹ نظر آنی ہے
-        let products = JSON.parse(localStorage.getItem('myProducts')) || [];
-        
-        productList.innerHTML = ''; // پرانی لسٹ صاف کریں
-        
-        products.forEach((item, index) => {
-            productList.innerHTML += `<li>${item.name} - ${item.price} روپے</li>`;
-        });
-    }
+<div class="search-container">
+    <input type="text" id="searchInput" onkeyup="searchItems()" placeholder="Search product (e.g. Paint, Aluminium)...">
+</div>
 
-    // 3. جب پیج ریفریش ہو تو خود بخود ڈیٹا لوڈ ہو جائے
-    window.onload = displayProducts;
-</script>
-
-    <body>
-
-    <div class="navbar">
-        <div style="font-weight: bold; font-size: 20px;">Macro Hardware</div>
-        <button class="admin-btn">Admin Panel</button>
-    </div>
-
-    <div class="container">
-        <div class="card">
-            <h2>Add New Product</h2>
-            <input type="text" placeholder="Product Name">
-            <input type="text" placeholder="Price (Rs.)">
-            
-            <label class="file-input-label" for="pPhoto">
-                📷 Select Photo from Gallery
-            </label>
-            <input type="file" id="pPhoto" accept="image/*" style="display: none;" onchange="showPreview(event)">
-            
-            <img id="preview" src="">
-
-            <button class="save-btn">Save Product</button>
+<div class="product-list" id="productList">
+    
+    <div class="card">
+        <img src="https://via.placeholder.com/400x200?text=Aluminium+Window" alt="Product">
+        <div class="info">
+            <h3>Aluminium Window</h3>
+            <span class="price">R 1,500</span>
         </div>
     </div>
 
-    <script>
-        function showPreview(event) {
-            if(event.target.files.length > 0){
-                var src = URL.createObjectURL(event.target.files[0]);
-                var preview = document.getElementById("preview");
-                preview.src = src;
-                preview.style.display = "block";
+    <div class="card">
+        <img src="https://via.placeholder.com/400x200?text=Roof+Paint" alt="Product">
+        <div class="info">
+            <h3>Roof Paint (5 Liters)</h3>
+            <span class="price">R 450</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <img src="https://via.placeholder.com/400x200?text=Tools" alt="Product">
+        <div class="info">
+            <h3>Steel Nails (1 Pack)</h3>
+            <span class="price">R 75</span>
+        </div>
+    </div>
+
+</div>
+
+<div class="qr-section">
+    <h3 style="color: #1a1a1a;">SCAN TO VISIT MACRO HARDWARE</h3>
+    <img class="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://macro-hardware.com" alt="QR Code">
+    <p style="font-size: 12px; color: #666; margin-top: 10px;">Take a screenshot of this QR Code</p>
+</div>
+
+<script>
+    function searchItems() {
+        let input = document.getElementById('searchInput').value.toLowerCase();
+        let cards = document.getElementsByClassName('card');
+        
+        for (let i = 0; i < cards.length; i++) {
+            let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
+            if (title.includes(input)) {
+                cards[i].style.display = "block";
+            } else {
+                cards[i].style.display = "none";
             }
         }
-    </script>
+    }
+</script>
 
 </body>
 </html>
+
