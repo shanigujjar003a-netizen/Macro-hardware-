@@ -1,107 +1,100 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ur">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Hardware | Admin Store</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <title>Macro Hardware | Online Store</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        :root { --main: #0d1b2a; --gold: #e09f3e; --bg: #f1f5f9; --white: #ffffff; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; }
-        header { background: var(--main); color: var(--white); padding: 40px 20px; text-align: center; border-bottom: 6px solid var(--gold); }
-        header h1 { margin: 0; color: var(--gold); text-transform: uppercase; }
-        
-        .admin-panel { background: #cbd5e1; padding: 20px; margin: 20px auto; max-width: 600px; border-radius: 15px; border: 2px solid var(--main); text-align: center; }
-        .input-group { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
-        input[type="text"], input[type="file"] { padding: 12px; border-radius: 8px; border: 1px solid #999; }
-        .btn-add { background: #1e293b; color: white; padding: 15px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; }
-        
-        .container { max-width: 1200px; margin: 30px auto; padding: 0 20px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 5px 15px rgba(0,0,0,0.1); text-align: center; }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
-        .info { padding: 15px; }
-        .price { color: #b91c1c; font-size: 1.5em; font-weight: bold; display: block; margin: 10px 0; }
-        .btn-wa { background: #22c55e; color: white; text-decoration: none; padding: 10px 20px; border-radius: 25px; display: inline-block; }
-        
-        #qrcode-container { margin: 40px auto; text-align: center; background: white; padding: 20px; width: fit-content; border-radius: 10px; }
-        footer { background: var(--main); color: white; padding: 20px; text-align: center; margin-top: 40px; }
+        :root { --main: #0d1b2a; --gold: #b99121; }
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
+        .admin-hidden { display: none; }
     </style>
 </head>
 <body>
 
-<header>
-    <h1>MACRO HARDWARE</h1>
-</header>
+    <header class="bg-[#0d1b2a] text-white p-6 text-center shadow-lg">
+        <h1 class="text-3xl font-bold tracking-widest text-[#b99121]">MACRO HARDWARE</h1>
+        <p class="text-sm opacity-80">Premium Building Materials</p>
+    </header>
 
-<div class="admin-panel">
-    <h3>Add New Stock</h3>
-    <div class="input-group">
-        <input type="text" id="pName" placeholder="Product Name (e.g. Rafter)">
-        <input type="text" id="pPrice" placeholder="Price (e.g. R 179)">
-        <input type="file" id="pImgFile" accept="image/*">
-        <button class="btn-add" onclick="addProduct()">Add to Shop</button>
+    <div id="adminPanel" class="admin-hidden bg-gray-200 p-6 border-b-2 border-gray-400">
+        <h2 class="text-xl font-bold mb-4 text-center">Admin Store Manager</h2>
+        <div class="max-w-md mx-auto space-y-3">
+            <input type="text" id="pName" placeholder="Product Name (e.g. Rafter)" class="w-full p-2 rounded border">
+            <input type="text" id="pPrice" placeholder="Price (e.g. R 179)" class="w-full p-2 rounded border">
+            <input type="file" id="pImage" class="w-full p-2 text-sm">
+            <button onclick="addProduct()" class="w-full bg-[#0d1b2a] text-white py-2 rounded font-bold hover:bg-black transition">Add to Shop</button>
+            <p class="text-xs text-red-600 text-center">*یہ حصہ صرف آپ کو نظر آ رہا ہے*</p>
+        </div>
     </div>
-</div>
 
-<div class="container">
-    <div id="productGrid" class="grid"></div>
-
-    <div id="qrcode-container">
-        <h4>Scan to Visit Store</h4>
-        <div id="qrcode"></div>
+    <div class="container mx-auto p-6">
+        <div id="productList" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            </div>
     </div>
-</div>
 
-<footer>
-    <p>© 2026 Macro Hardware | 084 454 8665</p>
-</footer>
+    <script>
+        // Admin Panel Toggle (Type 'admin' anywhere to show)
+        let keys = "";
+        window.addEventListener("keydown", (e) => {
+            keys += e.key;
+            if (keys.includes("admin")) {
+                document.getElementById("adminPanel").classList.toggle("admin-hidden");
+                keys = "";
+            }
+        });
 
-<script>
-    function addProduct() {
-        const name = document.getElementById('pName').value;
-        const price = document.getElementById('pPrice').value;
-        const fileInput = document.getElementById('pImgFile');
-        const file = fileInput.files[0];
+        // Load Stock from LocalStorage
+        window.onload = function() {
+            const savedData = localStorage.getItem('macroStock');
+            if (savedData) {
+                document.getElementById('productList').innerHTML = savedData;
+            }
+        };
 
-        if(!name || !price || !file) {
-            alert("Please fill all fields and select a photo!");
-            return;
+        // Add Product Function
+        function addProduct() {
+            const name = document.getElementById('pName').value;
+            const price = document.getElementById('pPrice').value;
+            const imageInput = document.getElementById('pImage');
+            
+            if (!name || !price || !imageInput.files[0]) {
+                alert("براہ کرم تمام معلومات پُر کریں");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const productCard = `
+                    <div class="bg-white rounded-xl shadow-md overflow-hidden border border-gray-200 group">
+                        <img src="${e.target.result}" class="w-full h-56 object-cover">
+                        <div class="p-4 text-center">
+                            <h3 class="text-xl font-bold text-gray-800">${name}</h3>
+                            <p class="text-[#b91c1c] font-black text-2xl my-2">${price}</p>
+                            <a href="https://wa.me/27844548665?text=I want to order ${name}" 
+                               class="inline-block bg-[#22c55e] text-white px-6 py-2 rounded-full font-bold hover:bg-green-600 transition">
+                               Order on WhatsApp
+                            </a>
+                            <button onclick="this.parentElement.parentElement.remove(); save();" class="block mx-auto mt-4 text-xs text-gray-400 hover:text-red-500 underline admin-btn hidden">Remove Item</button>
+                        </div>
+                    </div>`;
+                
+                document.getElementById('productList').innerHTML += productCard;
+                save();
+                // Clear inputs
+                document.getElementById('pName').value = "";
+                document.getElementById('pPrice').value = "";
+            };
+            reader.readAsDataURL(imageInput.files[0]);
         }
 
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const imgUrl = e.target.result;
-            const grid = document.getElementById('productGrid');
-            const card = document.createElement('div');
-            card.className = 'card';
-            card.innerHTML = `
-                <img src="${imgUrl}" alt="${name}">
-                <div class="info">
-                    <h3>${name}</h3>
-                    <span class="price">${price}</span>
-                    <a href="https://wa.me/27844548665?text=Hi, I want to order ${name}" class="btn-wa">Order on WhatsApp</a>
-                    <br><br>
-                    <button onclick="this.parentElement.parentElement.remove()" style="background:#ef4444; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Remove</button>
-                </div>
-            `;
-            grid.appendChild(card);
+        function save() {
+            const list = document.getElementById('productList').innerHTML;
+            localStorage.setItem('macroStock', list);
         }
-        reader.readAsDataURL(file);
-
-        // Reset inputs
-        document.getElementById('pName').value = '';
-        document.getElementById('pPrice').value = '';
-        fileInput.value = '';
-    }
-
-    new QRCode(document.getElementById("qrcode"), {
-        text: window.location.href,
-        width: 120,
-        height: 120
-    });
-</script>
-
+    </script>
 </body>
 </html>
+
 
