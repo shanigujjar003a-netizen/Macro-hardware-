@@ -1,17 +1,46 @@
-const firebaseConfig = {
-  apiKey: "AIzaSyCkVQ5Rvkbt1SRyUlyIJN1...", // Is line ko apni image 39910 se dekh kar poora karen
-  authDomain: "macro-hardware.firebaseapp.com",
-  projectId: "macro-hardware",
-  storageBucket: "macro-hardware.appspot.com",
-  messagingSenderId: "696737618825",
-  appId: "1:696737618825:web:4bbb63f3...", // Is line ko bhi apni image 39910 se dekh kar poora karen
-  measurementId: "G-GDQ93GZCJX"
-};
 
-// Firebase initialize karen
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
-const storage = firebase.storage();
+<!DOCTYPE html>
+<html lang="ur">
+<head>
+    <meta charset="UTF-8">
+    <title>Macro Hardware Admin</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
+</head>
+<body>
+    <h1>میکرو ہارڈویئر اسٹاک مینجمنٹ</h1>
+    
+    <div id="admin-panel">
+        <input type="text" id="itemName" placeholder="سامان کا نام">
+        <input type="number" id="itemPrice" placeholder="قیمت">
+        <input type="file" id="itemImage">
+        <button onclick="uploadData()">اسٹاک میں شامل کریں</button>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyCkVQ5Rvkbt1SRyUlyIJN1...", // اپنی مکمل تصویر 39910 سے دیکھ کر لکھیں
+            authDomain: "macro-hardware.firebaseapp.com",
+            projectId: "macro-hardware",
+            storageBucket: "macro-hardware.appspot.com",
+            messagingSenderId: "696737618825",
+            appId: "1:696737618825:web:4bbb63f3...", // اپنی مکمل تصویر 39910 سے دیکھ کر لکھیں
+            measurementId: "G-GDQ93GZCJX"
+        };
+
+        // فائر بیس شروع کریں
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+
+        function uploadData() {
+            // یہاں ڈیٹا اپ لوڈ کرنے کا فنکشن آئے گا
+            alert("سیٹ اپ مکمل ہے! اب آپ اپ لوڈ کر سکتے ہیں۔");
+        }
+    </script>
+</body>
+</html>
 
 
 
