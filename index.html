@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,27 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Macro Hardware - Catalog</title>
     <style>
-        body { font-family: 'Arial', sans-serif; background-color: #f4f4f9; margin: 0; padding: 10px; text-align: center; }
-        header { background: #1a1a1a; color: #ffcc00; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-bottom: 4px solid #cc0000; }
-        
-        /* Search Box */
-        .search-container { position: sticky; top: 0; background: #f4f4f9; padding: 10px 0; z-index: 100; }
-        #searchInput { width: 90%; padding: 12px; border-radius: 25px; border: 2px solid #1a1a1a; font-size: 16px; outline: none; }
-
-        /* Product Cards */
-        .product-list { display: flex; flex-direction: column; gap: 15px; align-items: center; margin-top: 10px; }
-        .card { background: white; width: 95%; max-width: 400px; border-radius: 12px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); overflow: hidden; border: 1px solid #ddd; }
-        
-        /* Product Image */
-        .card img { width: 100%; height: 200px; object-fit: cover; background-color: #eee; }
-        
-        .info { padding: 15px; text-align: left; }
-        .info h3 { margin: 0; font-size: 18px; color: #333; }
-        .price { color: #d32f2f; font-size: 22px; font-weight: bold; display: block; margin-top: 8px; }
-
-        /* QR Code Footer */
-        .qr-section { margin-top: 40px; padding: 20px; background: white; border: 2px dashed #1a1a1a; border-radius: 15px; }
-        .qr-image { width: 180px; height: 180px; }
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; text-align: center; }
+        header { background: #1a1a1a; color: #ffcc00; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .product-list { display: flex; flex-wrap: wrap; justify-content: center; gap: 20px; }
+        .card { background: white; width: 300px; border-radius: 15px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); padding: 15px; }
+        .card img { width: 100%; border-radius: 10px; height: 150px; object-fit: cover; }
+        .info h3 { margin: 10px 0; color: #333; }
+        .price { color: #d9534f; font-weight: bold; font-size: 1.2em; }
     </style>
 </head>
 <body>
@@ -35,14 +22,9 @@
     <p>Premium Building Materials & Tools</p>
 </header>
 
-<div class="search-container">
-    <input type="text" id="searchInput" onkeyup="searchItems()" placeholder="Search product (e.g. Paint, Aluminium)...">
-</div>
-
-<div class="product-list" id="productList">
-    
+<div class="product-list">
     <div class="card">
-        <img src="https://via.placeholder.com/400x200?text=Aluminium+Window" alt="Product">
+        <img src="https://via.placeholder.com/400x200" alt="Aluminium Window">
         <div class="info">
             <h3>Aluminium Window</h3>
             <span class="price">R 1600</span>
@@ -50,7 +32,7 @@
     </div>
 
     <div class="card">
-        <img src="https://via.placeholder.com/400x200?text=Roof+Paint" alt="Product">
+        <img src="https://via.placeholder.com/400x200" alt="Roof Paint">
         <div class="info">
             <h3>Roof Paint (5 Liters)</h3>
             <span class="price">R 450</span>
@@ -58,48 +40,13 @@
     </div>
 
     <div class="card">
-        <img src="https://via.placeholder.com/400x200?text=Tools" alt="Product">
+        <img src="https://via.placeholder.com/400x200" alt="Steel Nails">
         <div class="info">
             <h3>Steel Nails (1 Pack)</h3>
             <span class="price">R 75</span>
-        </div><div class="card">
-    <img src="https://i.ibb.co/example/photo.jpg" alt="Product">
-    <h3>سامان کا نام یہاں لکھیں</h3>
-    <p class="price">R قیمت یہاں لکھیں</p>
-<div class="card">
-    <img src="https://via.placeholder.com/400x200" alt="Product">
-    <div class="info">
-        <h3>سامان کا نام یہاں لکھیں</h3>
-        <span class="price">R قیمت یہاں لکھیں</span>
+        </div>
     </div>
 </div>
-
-
-    </div>
-
-</div>
-
-<div class="qr-section">
-    <h3 style="color: #1a1a1a;">SCAN TO VISIT MACRO HARDWARE</h3>
-    <img class="qr-image" src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://macro-hardware.com" alt="QR Code">
-    <p style="font-size: 12px; color: #666; margin-top: 10px;">Take a screenshot of this QR Code</p>
-</div>
-
-<script>
-    function searchItems() {
-        let input = document.getElementById('searchInput').value.toLowerCase();
-        let cards = document.getElementsByClassName('card');
-        
-        for (let i = 0; i < cards.length; i++) {
-            let title = cards[i].getElementsByTagName('h3')[0].innerText.toLowerCase();
-            if (title.includes(input)) {
-                cards[i].style.display = "block";
-            } else {
-                cards[i].style.display = "none";
-            }
-        }
-    }
-</script>
 
 </body>
 </html>
