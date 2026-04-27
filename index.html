@@ -31,7 +31,41 @@
         .save-btn { width: 100%; background-color: #28a745; color: white; border: none; padding: 12px; font-size: 18px; font-weight: bold; border-radius: 5px; cursor: pointer; }
     </style>
 </head>
-<body>
+<script>
+    // 1. پروڈکٹ کو براؤزر کی میموری میں محفوظ کرنے کا فنکشن
+    function saveProduct() {
+        const name = document.getElementById('productName').value; // جہاں نام لکھتے ہیں اس کی ID
+        const price = document.getElementById('productPrice').value; // جہاں قیمت لکھتے ہیں اس کی ID
+
+        if (name && price) {
+            let products = JSON.parse(localStorage.getItem('myProducts')) || [];
+            products.push({ name: name, price: price });
+            
+            localStorage.setItem('myProducts', JSON.stringify(products));
+            alert("پروڈکٹ محفوظ ہوگئی ہے!");
+            displayProducts(); // لسٹ اپڈیٹ کرنے کے لیے
+        } else {
+            alert("براہ کرم نام اور قیمت دونوں لکھیں");
+        }
+    }
+
+    // 2. محفوظ شدہ پروڈکٹس کو سکرین پر دکھانے کا فنکشن
+    function displayProducts() {
+        const productList = document.getElementById('displayArea'); // جہاں لسٹ نظر آنی ہے
+        let products = JSON.parse(localStorage.getItem('myProducts')) || [];
+        
+        productList.innerHTML = ''; // پرانی لسٹ صاف کریں
+        
+        products.forEach((item, index) => {
+            productList.innerHTML += `<li>${item.name} - ${item.price} روپے</li>`;
+        });
+    }
+
+    // 3. جب پیج ریفریش ہو تو خود بخود ڈیٹا لوڈ ہو جائے
+    window.onload = displayProducts;
+</script>
+
+    <body>
 
     <div class="navbar">
         <div style="font-weight: bold; font-size: 20px;">Macro Hardware</div>
