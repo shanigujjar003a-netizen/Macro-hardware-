@@ -1,66 +1,100 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Hardware - Admin Panel</title>
+    <title>Macro Hardware - Inventory System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-storage.js"></script>
-    <style>
-        body { font-family: sans-serif; background: #f4f4f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 350px; text-align: center; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
-        #status { margin-top: 15px; font-size: 14px; color: blue; }
-    </style>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
-<body>
-    <div class="container">
-        <h2>Stock Management</h2>
-        <input type="text" id="pName" placeholder="Product Name">
-        <input type="number" id="pPrice" placeholder="Price">
-        <input type="file" id="pImage">
-        <button onclick="uploadItem()">Add to Stock</button>
-        <p id="status"></p>
+<body class="bg-gray-50 font-sans">
+
+    <nav class="bg-slate-900 text-white p-6 shadow-2xl border-b-4 border-blue-500 text-center">
+        <h1 class="text-3xl font-extrabold tracking-tighter">MACRO HARDWARE STOCK MANAGEMENT</h1>
+    </nav>
+
+    <div class="container mx-auto p-6 max-w-6xl">
+        
+        <div class="bg-white p-8 rounded-2xl shadow-xl mb-10 border border-gray-200">
+            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2">Inventory Control Panel</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                    <input id="itemName" type="text" placeholder="e.g. Alpine Cement 42.5" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
+                    <input id="itemQty" type="number" placeholder="0" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Price (R)</label>
+                    <input id="itemPrice" type="text" placeholder="0.00" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div class="flex items-end">
+                    <button onclick="saveStock()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transform active:scale-95 transition shadow-lg">
+                        Update Inventory
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
+            <table class="w-full text-left">
+                <thead class="bg-slate-100 text-slate-600 uppercase text-sm">
+                    <tr>
+                        <th class="p-5">Product Details</th>
+                        <th class="p-5">Stock Level</th>
+                        <th class="p-5">Unit Price</th>
+                        <th class="p-5 text-right">Management</th>
+                    </tr>
+                </thead>
+                <tbody id="inventoryList" class="divide-y divide-gray-100">
+                    </tbody>
+            </table>
+        </div>
     </div>
 
     <script>
+        // --- IMPORTANT: REPLACE WITH YOUR FIREBASE SETTINGS ---
         const firebaseConfig = {
-            apiKey: "AIzaSyCkVQ5Rvkbt1SRyUlyIJN1SRyUlyIJN1",
-            authDomain: "macro-hardware.firebaseapp.com",
-            projectId: "macro-hardware",
-            storageBucket: "macro-hardware.appspot.com",
-            messagingSenderId: "696737618825",
-            appId: "1:696737618825:web:4bbb63f3d2ddc0bfa35f58", // آپ کی نئی آئی ڈی یہاں ڈال دی ہے
-            measurementId: "G-GDQ93GZCJX"
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+            databaseURL: "YOUR_DATABASE_URL",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT_ID.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
         };
-
+        
         firebase.initializeApp(firebaseConfig);
-        const db = firebase.firestore();
-        const storage = firebase.storage();
+        const db = firebase.database();
 
-        async function uploadItem() {
-            const name = document.getElementById('pName').value;
-            const price = document.getElementById('pPrice').value;
-            const imageFile = document.getElementById('pImage').files[0];
-            const status = document.getElementById('status');
-            if (!name || !price || !imageFile) { alert("Fill all fields!"); return; }
-            status.innerText = "Uploading... Please wait";
-            try {
-                const imgRef = storage.ref('products/' + imageFile.name);
-                await imgRef.put(imageFile);
-                const imgUrl = await imgRef.getDownloadURL();
-                await db.collection('hardware_items').add({ name, price, image: imgUrl, date: new Date() });
-                status.style.color = "green";
-                status.innerText = "Success! Added to stock.";
-                document.getElementById('pName').value = ""; document.getElementById('pPrice').value = "";
-            } catch (e) { 
-                status.style.color = "red";
-                status.innerText = "Error: " + e.message; 
+        // Function to Save/Update Data
+        function saveStock() {
+            const name = document.getElementById('itemName').value;
+            const qty = document.getElementById('itemQty').value;
+            const price = document.getElementById('itemPrice').value;
+
+            if(name === "" || qty === "" || price === "") {
+                alert("Error: Please complete all fields.");
+                return;
             }
+
+            db.ref('macro_stock/' + name).set({
+                quantity: qty,
+                price: price
+            }).then(() => {
+                // Clear inputs after success
+                document.getElementById('itemName').value = "";
+                document.getElementById('itemQty').value = "";
+                document.getElementById('itemPrice').value = "";
+            });
         }
-    </script>
-</body>
-</html>
+
+        // Live Listener to sync data from Database
+        db.ref('macro_stock/').on('value', (snapshot) => {
+            const list = document.getElementById('inventoryList');
+            list.
 
