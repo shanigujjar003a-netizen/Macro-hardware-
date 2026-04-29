@@ -1,66 +1,24 @@
-// Load data from LocalStorage on startup, or start with empty array
-let inventory = JSON.parse(localStorage.getItem('macroStock')) || [];
+<div class="max-w-md mx-auto mt-6 px-4">
+    <div class="relative">
+        <input type="text" id="searchInput" onkeyup="searchStock()" placeholder="Search by product name..." 
+        class="w-full p-3 pl-10 border border-blue-300 rounded-xl shadow-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        <span class="absolute left-3 top-3.5 text-gray-400">🔍</span>
+    </div>
+</div>
 
-// Run this once to show existing data when page loads
-window.onload = () => {
-    displayStock(inventory);
-};
+<div class="max-w-md mx-auto mt-6 bg-white rounded-xl shadow-lg overflow-hidden">
+    <table class="w-full text-left border-collapse">
+        <thead class="bg-blue-600 text-white">
+            <tr>
+                <th class="p-3 text-sm font-semibold uppercase">Product</th>
+                <th class="p-3 text-sm font-semibold uppercase">Stock</th>
+                <th class="p-3 text-sm font-semibold uppercase">Price</th>
+                <th class="p-3 text-sm font-semibold uppercase">Action</th>
+            </tr>
+        </thead>
+        <tbody id="stockTableBody">
+            </tbody>
+    </table>
+</div>
 
-function updateInventory() {
-    const nameInput = document.querySelector('input[placeholder*="Alpine"]');
-    const qtyInput = document.querySelector('input[placeholder="0"]');
-    const priceInput = document.querySelector('input[placeholder="0.00"]');
-
-    const name = nameInput.value.trim();
-    const stock = qtyInput.value.trim();
-    const price = priceInput.value.trim();
-
-    if (name === "" || stock === "" || price === "") {
-        alert("Please fill in all fields!");
-        return;
-    }
-
-    // Create product object
-    const product = { name, stock, price };
-
-    // Add to our list
-    inventory.push(product);
-
-    // Save to LocalStorage (Permanent storage)
-    localStorage.setItem('macroStock', JSON.stringify(inventory));
-
-    // Refresh the table and clear inputs
-    displayStock(inventory);
-    nameInput.value = "";
-    qtyInput.value = "";
-    priceInput.value = "";
-}
-
-function searchStock() {
-    const query = document.getElementById('searchInput').value.toLowerCase();
-    
-    // Filter the inventory based on name
-    const filteredData = inventory.filter(item => 
-        item.name.toLowerCase().includes(query)
-    );
-    
-    displayStock(filteredData);
-}
-
-function displayStock(data) {
-    const tableBody = document.querySelector('tbody');
-    if (!tableBody) return;
-
-    tableBody.innerHTML = ""; 
-
-    data.forEach((item, index) => {
-        const row = `
-            <tr class="border-b hover:bg-gray-50">
-                <td class="p-3 text-sm text-gray-700">${item.name}</td>
-                <td class="p-3 text-sm text-gray-700">${item.stock}</td>
-                <td class="p-3 text-sm text-gray-700 font-bold">R ${item.price}</td>
-            </tr>`;
-        tableBody.innerHTML += row;
-    });
-}
 
