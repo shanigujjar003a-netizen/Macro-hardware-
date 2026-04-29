@@ -1,126 +1,66 @@
+// Load data from LocalStorage on startup, or start with empty array
+let inventory = JSON.parse(localStorage.getItem('macroStock')) || [];
 
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Hardware - Pro Inventory</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-</head>
-<body class="bg-gray-100 font-sans">
+// Run this once to show existing data when page loads
+window.onload = () => {
+    displayStock(inventory);
+};
 
-    <nav class="bg-slate-900 text-white p-6 shadow-xl text-center border-b-4 border-blue-600">
-        <h1 class="text-2xl font-bold uppercase tracking-widest">Macro Hardware Stock Manager</h1>
-    </nav>
+function updateInventory() {
+    const nameInput = document.querySelector('input[placeholder*="Alpine"]');
+    const qtyInput = document.querySelector('input[placeholder="0"]');
+    const priceInput = document.querySelector('input[placeholder="0.00"]');
 
-    <div class="container mx-auto p-4 max-w-5xl">
-        
-        <div class="bg-white p-6 rounded-2xl shadow-lg mb-8 border border-gray-200">
-            <h2 class="text-lg font-bold mb-4 text-gray-700">Add New Product</h2>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
-                
-                <div class="col-span-1">
-                    <label class="block text-xs font-bold text-gray-500 mb-1">PRODUCT PHOTO</label>
-                    <label class="flex flex-col items-center justify-center w-full h-12 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer bg-blue-50 hover:bg-blue-100 transition">
-                        <span class="text-xs text-blue-600 font-medium">Select Gallery</span>
-                        <input type="file" id="itemPhoto" accept="image/*" class="hidden" />
-                    </label>
-                </div>
+    const name = nameInput.value.trim();
+    const stock = qtyInput.value.trim();
+    const price = priceInput.value.trim();
 
-                <div class="col-span-1">
-                    <label class="block text-xs font-bold text-gray-500 mb-1">NAME</label>
-                    <input id="itemName" type="text" placeholder="Item Name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+    if (name === "" || stock === "" || price === "") {
+        alert("Please fill in all fields!");
+        return;
+    }
 
-                <div class="col-span-1">
-                    <label class="block text-xs font-bold text-gray-500 mb-1">QUANTITY</label>
-                    <input id="itemQty" type="number" placeholder="0" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+    // Create product object
+    const product = { name, stock, price };
 
-                <div class="col-span-1">
-                    <label class="block text-xs font-bold text-gray-500 mb-1">PRICE (R)</label>
-                    <input id="itemPrice" type="text" placeholder="0.00" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
-                </div>
+    // Add to our list
+    inventory.push(product);
 
-                <button onclick="saveStock()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-md">
-                    Save Item
-                </button>
-            </div>
-        </div>
+    // Save to LocalStorage (Permanent storage)
+    localStorage.setItem('macroStock', JSON.stringify(inventory));
 
-        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
-            <table class="w-full text-left border-collapse">
-                <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-black">
-                    <tr>
-                        <th class="p-4">Photo</th>
-                        <th class="p-4">Item Details</th>
-                        <th class="p-4">Stock</th>
-                        <th class="p-4">Price</th>
-                        <th class="p-4 text-right">Action</th>
-                    </tr>
-                </thead>
-                <tbody id="inventoryBody" class="divide-y divide-gray-100">
-                    </tbody>
-            </table>
-        </div>
-    </div>
+    // Refresh the table and clear inputs
+    displayStock(inventory);
+    nameInput.value = "";
+    qtyInput.value = "";
+    priceInput.value = "";
+}
 
-    <script>
-        // --- YOUR FIREBASE CONFIG ---
-        const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            databaseURL: "YOUR_DATABASE_URL",
-            projectId: "YOUR_PROJECT_ID",
-            appId: "YOUR_APP_ID"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+function searchStock() {
+    const query = document.getElementById('searchInput').value.toLowerCase();
+    
+    // Filter the inventory based on name
+    const filteredData = inventory.filter(item => 
+        item.name.toLowerCase().includes(query)
+    );
+    
+    displayStock(filteredData);
+}
 
-        function saveStock() {
-            const name = document.getElementById('itemName').value;
-            const qty = document.getElementById('itemQty').value;
-            const price = document.getElementById('itemPrice').value;
-            
-            if(!name || !qty || !price) return alert("Fill all fields!");
+function displayStock(data) {
+    const tableBody = document.querySelector('tbody');
+    if (!tableBody) return;
 
-            db.ref('macro_stock/' + name).set({
-                quantity: qty,
-                price: price
-            }).then(() => {
-                alert("Saved!");
-                document.getElementById('itemName').value = "";
-                document.getElementById('itemQty').value = "";
-                document.getElementById('itemPrice').value = "";
-            });
-        }
+    tableBody.innerHTML = ""; 
 
-        db.ref('macro_stock/').on('value', (snap) => {
-            const list = document.getElementById('inventoryBody');
-            list.innerHTML = "";
-            snap.forEach((item) => {
-                const d = item.val();
-                list.innerHTML += `
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="p-4">
-                            <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center text-[10px] text-gray-400">No Image</div>
-                        </td>
-                        <td class="p-4 font-bold text-slate-800">${item.key}</td>
-                        <td class="p-4 font-bold text-blue-600">${d.quantity} Units</td>
-                        <td class="p-4 font-mono font-bold">R ${d.price}</td>
-                        <td class="p-4 text-right">
-                            <button onclick="deleteItem('${item.key}')" class="text-red-500 text-sm font-bold">Remove</button>
-                        </td>
-                    </tr>
-                `;
-            });
-        });
-
-        function deleteItem(id) {
-            if(confirm("Delete this item?")) db.ref('macro_stock/' + id).remove();
-        }
-    </script>
-</body>
-</html>
+    data.forEach((item, index) => {
+        const row = `
+            <tr class="border-b hover:bg-gray-50">
+                <td class="p-3 text-sm text-gray-700">${item.name}</td>
+                <td class="p-3 text-sm text-gray-700">${item.stock}</td>
+                <td class="p-3 text-sm text-gray-700 font-bold">R ${item.price}</td>
+            </tr>`;
+        tableBody.innerHTML += row;
+    });
+}
 
