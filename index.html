@@ -4,97 +4,123 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macro Hardware - Inventory System</title>
+    <title>Macro Hardware - Pro Inventory</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
-<body class="bg-gray-50 font-sans">
+<body class="bg-gray-100 font-sans">
 
-    <nav class="bg-slate-900 text-white p-6 shadow-2xl border-b-4 border-blue-500 text-center">
-        <h1 class="text-3xl font-extrabold tracking-tighter">MACRO HARDWARE STOCK MANAGEMENT</h1>
+    <nav class="bg-slate-900 text-white p-6 shadow-xl text-center border-b-4 border-blue-600">
+        <h1 class="text-2xl font-bold uppercase tracking-widest">Macro Hardware Stock Manager</h1>
     </nav>
 
-    <div class="container mx-auto p-6 max-w-6xl">
+    <div class="container mx-auto p-4 max-w-5xl">
         
-        <div class="bg-white p-8 rounded-2xl shadow-xl mb-10 border border-gray-200">
-            <h2 class="text-xl font-bold mb-6 text-slate-800 border-b pb-2">Inventory Control Panel</h2>
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                    <input id="itemName" type="text" placeholder="e.g. Alpine Cement 42.5" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+        <div class="bg-white p-6 rounded-2xl shadow-lg mb-8 border border-gray-200">
+            <h2 class="text-lg font-bold mb-4 text-gray-700">Add New Product</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+                
+                <div class="col-span-1">
+                    <label class="block text-xs font-bold text-gray-500 mb-1">PRODUCT PHOTO</label>
+                    <label class="flex flex-col items-center justify-center w-full h-12 border-2 border-dashed border-blue-300 rounded-xl cursor-pointer bg-blue-50 hover:bg-blue-100 transition">
+                        <span class="text-xs text-blue-600 font-medium">Select Gallery</span>
+                        <input type="file" id="itemPhoto" accept="image/*" class="hidden" />
+                    </label>
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Stock Quantity</label>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-bold text-gray-500 mb-1">NAME</label>
+                    <input id="itemName" type="text" placeholder="Item Name" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-bold text-gray-500 mb-1">QUANTITY</label>
                     <input id="itemQty" type="number" placeholder="0" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1">Price (R)</label>
+
+                <div class="col-span-1">
+                    <label class="block text-xs font-bold text-gray-500 mb-1">PRICE (R)</label>
                     <input id="itemPrice" type="text" placeholder="0.00" class="w-full p-3 border rounded-xl outline-none focus:ring-2 focus:ring-blue-500">
                 </div>
-                <div class="flex items-end">
-                    <button onclick="saveStock()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transform active:scale-95 transition shadow-lg">
-                        Update Inventory
-                    </button>
-                </div>
+
+                <button onclick="saveStock()" class="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 shadow-md">
+                    Save Item
+                </button>
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-2xl overflow-hidden border border-gray-200">
-            <table class="w-full text-left">
-                <thead class="bg-slate-100 text-slate-600 uppercase text-sm">
+        <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-200">
+            <table class="w-full text-left border-collapse">
+                <thead class="bg-slate-50 text-slate-500 uppercase text-xs font-black">
                     <tr>
-                        <th class="p-5">Product Details</th>
-                        <th class="p-5">Stock Level</th>
-                        <th class="p-5">Unit Price</th>
-                        <th class="p-5 text-right">Management</th>
+                        <th class="p-4">Photo</th>
+                        <th class="p-4">Item Details</th>
+                        <th class="p-4">Stock</th>
+                        <th class="p-4">Price</th>
+                        <th class="p-4 text-right">Action</th>
                     </tr>
                 </thead>
-                <tbody id="inventoryList" class="divide-y divide-gray-100">
+                <tbody id="inventoryBody" class="divide-y divide-gray-100">
                     </tbody>
             </table>
         </div>
     </div>
 
     <script>
-        // --- IMPORTANT: REPLACE WITH YOUR FIREBASE SETTINGS ---
+        // --- YOUR FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
             databaseURL: "YOUR_DATABASE_URL",
             projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT_ID.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
             appId: "YOUR_APP_ID"
         };
-        
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // Function to Save/Update Data
         function saveStock() {
             const name = document.getElementById('itemName').value;
             const qty = document.getElementById('itemQty').value;
             const price = document.getElementById('itemPrice').value;
-
-            if(name === "" || qty === "" || price === "") {
-                alert("Error: Please complete all fields.");
-                return;
-            }
+            
+            if(!name || !qty || !price) return alert("Fill all fields!");
 
             db.ref('macro_stock/' + name).set({
                 quantity: qty,
                 price: price
             }).then(() => {
-                // Clear inputs after success
+                alert("Saved!");
                 document.getElementById('itemName').value = "";
                 document.getElementById('itemQty').value = "";
                 document.getElementById('itemPrice').value = "";
             });
         }
 
-        // Live Listener to sync data from Database
-        db.ref('macro_stock/').on('value', (snapshot) => {
-            const list = document.getElementById('inventoryList');
-            list.
+        db.ref('macro_stock/').on('value', (snap) => {
+            const list = document.getElementById('inventoryBody');
+            list.innerHTML = "";
+            snap.forEach((item) => {
+                const d = item.val();
+                list.innerHTML += `
+                    <tr class="hover:bg-gray-50 transition">
+                        <td class="p-4">
+                            <div class="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center text-[10px] text-gray-400">No Image</div>
+                        </td>
+                        <td class="p-4 font-bold text-slate-800">${item.key}</td>
+                        <td class="p-4 font-bold text-blue-600">${d.quantity} Units</td>
+                        <td class="p-4 font-mono font-bold">R ${d.price}</td>
+                        <td class="p-4 text-right">
+                            <button onclick="deleteItem('${item.key}')" class="text-red-500 text-sm font-bold">Remove</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        });
+
+        function deleteItem(id) {
+            if(confirm("Delete this item?")) db.ref('macro_stock/' + id).remove();
+        }
+    </script>
+</body>
+</html>
 
